@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main  # 🔍 Roda quando um Pull Request é aberto/atualizado para 'main'
-  workflow_dispatch: # ⚙️ Permite executar manualmente o workflow pela interface do GitHub
+  workflow_dispatch: # ⚙️ Permite executar manually o workflow pela interface do GitHub
 
 jobs:
   build_apk:
@@ -21,7 +21,8 @@ jobs:
       - name: 💙 Configurar Flutter SDK
         uses: subosito/flutter-action@v2 # 🚀 Configura o ambiente Flutter
         with:
-          flutter-version: '3.x.x' # 🎯 Especifica a versão do Flutter. Ex: '3.19.0' ou '3.x.x' para a mais recente 3.x.x
+          # ✅ CORREÇÃO: Usando uma versão específica e estável do Flutter para evitar erros.
+          flutter-version: '3.22.2'
           cache: true # ⚡ Ativa o cache para downloads mais rápidos de dependências
 
       - name: 🧩 Instalar Dependências (flutter pub get)
