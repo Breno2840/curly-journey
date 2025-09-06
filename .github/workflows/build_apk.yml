@@ -3,61 +3,62 @@ name: 🚀 Build & Release APK (Flutter) 🚀
 on:
   push:
     branches:
-      - main  # 🌳 Roda quando há push na branch 'main' (ou 'master', ajuste se necessário)
+      - main
   pull_request:
     branches:
-      - main  # 🔍 Roda quando um Pull Request é aberto/atualizado para 'main'
-  workflow_dispatch: # ⚙️ Permite executar manually o workflow pela interface do GitHub
+      - main
+  workflow_dispatch:
 
 jobs:
   build_apk:
     name: 🏗️ Build Android APK
-    runs-on: ubuntu-latest # 🐧 Usa a versão mais recente do Ubuntu para o runner
+    runs-on: ubuntu-latest
+
+    # ✅ CORREÇÃO: Dando permissão para o job criar a Release.
+    permissions:
+      contents: write
 
     steps:
       - name: ⬇️ Checkout do Repositório
-        uses: actions/checkout@v4 # 📦 Baixa o código do seu repositório
+        uses: actions/checkout@v4
 
       - name: 💙 Configurar Flutter SDK
-        uses: subosito/flutter-action@v2 # 🚀 Configura o ambiente Flutter
+        uses: subosito/flutter-action@v2
         with:
-          # ✅ CORREÇÃO: Usando uma versão específica e estável do Flutter para evitar erros.
           flutter-version: '3.22.2'
-          cache: true # ⚡ Ativa o cache para downloads mais rápidos de dependências
+          cache: true
 
       - name: 🧩 Instalar Dependências (flutter pub get)
-        run: flutter pub get # ✨ Baixa todas as dependências do projeto
+        run: flutter pub get
 
-      - name: 🧪 Executar Testes (Opcional, mas recomendado!)
-        run: flutter test # ✅ Executa os testes unitários e de widget
+      # Desativamos o passo de teste, conforme sua necessidade.
+      # - name: 🧪 Executar Testes (Opcional, mas recomendado!)
+      #   run: flutter test
 
       - name: ⚙️ Buildar o APK de Release
-        run: flutter build apk --release # 🚀 Compila o APK otimizado para lançamento
+        run: flutter build apk --release
 
       - name: 📦 Renomear APK (Opcional)
         run: |
           BUILD_NUMBER=${{ github.run_number }}
           mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-$BUILD_NUMBER.apk
-        # 🏷️ Renomeia o APK gerado para incluir o número da build do GitHub Actions.
-        # Isso ajuda a identificar qual versão do APK foi gerada por qual execução do workflow.
-        # Ex: app-release-123.apk
 
       - name: ⬆️ Upload do APK como Artefato
-        uses: actions/upload-artifact@v4 # 📤 Envia o APK compilado como um artefato da build
+        uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk # 📁 Nome do artefato
-          path: build/app/outputs/flutter-apk/app-release-*.apk # 📍 Caminho para o APK (usando curinga para pegar o renomeado)
-          retention-days: 5 # 🗓️ Mantém o artefato por 5 dias
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release-*.apk
+          retention-days: 5
 
       - name: 📝 Criar Release no GitHub (Opcional, mas útil!)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Apenas em push para main
-        uses: softprops/action-gh-release@v1 # 📝 Cria um rascunho de Release no GitHub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }} # 🏷️ Tag da Release (ex: v1, v2)
-          name: Release v${{ github.run_number }} # 📝 Nome da Release
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
           body: |
             ✨ Nova versão do aplicativo gerada automaticamente pelo CI/CD.
             [Link para a build](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-          draft: true # 📥 Cria como rascunho para você revisar antes de publicar
-          prerelease: false # 🚀 Não é pré-release
-          files: build/app/outputs/flutter-apk/app-release-*.apk # 📎 Anexa o APK à Release
+          draft: true
+          prerelease: false
+          files: build/app/outputs/flutter-apk/app-release-*.apk
