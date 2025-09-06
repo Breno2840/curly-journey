@@ -1,44 +1,67 @@
+// Usa os plugins essenciais para uma aplicação Android e Kotlin.
 plugins {
     id("com.android.application")
-    id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id("dev.flutter.flutter-gradle-plugin")
+    id("org.jetbrains.kotlin.android")
+    id("dev.flutter.flutter-gradle-plugin") // Plugin do Flutter
 }
 
+// ✅ PARTE 1 DA CORREÇÃO:
+// Define variáveis para receber o versionCode e versionName do Flutter (via pubspec.yaml).
+val flutterVersionCode: String? by project
+val flutterVersionName: String? by project
+
 android {
-    namespace = "com.calculadora.my"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // Define o namespace do seu aplicativo, importante para o Android.
+    namespace = "com.example.curly_journey"
+    compileSdk = 34 // Versão do SDK do Android para compilar.
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+    // Configuração para o código fonte.
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/kotlin")
+        }
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.calculadora.my"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        // Configurações padrão do aplicativo.
+        applicationId = "com.example.curly_journey"
+        minSdk = 21      // Mínima versão do Android que seu app suporta.
+        targetSdk = 34     // Versão do Android para a qual o app foi otimizado.
+
+        // ✅ PARTE 2 DA CORREÇÃO:
+        // Pega os valores das variáveis definidas no topo e os atribui.
+        // Usa valores padrão ("1" e "1.0") caso não consiga encontrar os do Flutter.
+        versionCode = (flutterVersionCode ?: "1").toInt()
+        versionName = flutterVersionName ?: "1.0"
     }
 
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        getByName("release") {
+            // Configurações para a build de lançamento (o APK que você gera).
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // Assina o app para garantir sua autenticidade.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // Define a compatibilidade com versões do Java.
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    // Configurações específicas do Kotlin.
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
-flutter {
-    source = "../.."
+// Dependências do projeto.
+dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.23")
 }
